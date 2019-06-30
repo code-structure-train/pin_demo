@@ -90,6 +90,7 @@ static void MX_GPIO_Init(void);
 /* USER CODE BEGIN 0 */
 rt_thread_t led1_thread;
 rt_thread_t led2_thread;
+rt_thread_t led3_thread;
 
 void led1_thread_entry(void* parameter)
 {
@@ -110,6 +111,16 @@ void led2_thread_entry(void* parameter)
 
     HAL_GPIO_WritePin(LED_G_GPIO_Port, GPIO_PIN_14, GPIO_PIN_SET);
     rt_thread_delay(200);
+  }
+}
+
+void led3_thread_entry(void* parameter)
+{
+  while(1) {		
+    rt_pin_write(LED_B_PIN, PIN_HIGH);
+    rt_thread_mdelay(500);
+    rt_pin_write(LED_B_PIN, PIN_LOW);
+    rt_thread_mdelay(500);
   }
 }
 /* USER CODE END 0 */
@@ -147,6 +158,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   RTT_CREATE(led1,led1_thread_entry,RT_NULL,256,5,20);
   RTT_CREATE(led2,led2_thread_entry,RT_NULL,256,5,20);
+  RTT_CREATE(led3,led3_thread_entry,RT_NULL,256,5,20);
   /* USER CODE END 2 */
 
   /* Infinite loop */
