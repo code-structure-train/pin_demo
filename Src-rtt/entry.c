@@ -56,6 +56,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "entry.h"
+#include "key.h"
+#include "led.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -116,11 +118,13 @@ void led2_thread_entry(void* parameter)
 
 void led3_thread_entry(void* parameter)
 {
-  while(1) {		
-    rt_pin_write(LED_B_PIN, PIN_HIGH);
-    rt_thread_mdelay(500);
-    rt_pin_write(LED_B_PIN, PIN_LOW);
-    rt_thread_mdelay(500);
+  while(1) {	
+    if(KEY_VALUE == 0)	{
+      rt_pin_write(LED_B_PIN, PIN_HIGH);
+      rt_thread_mdelay(500);
+      rt_pin_write(LED_B_PIN, PIN_LOW);
+      rt_thread_mdelay(500);
+    }
   }
 }
 /* USER CODE END 0 */
@@ -156,6 +160,8 @@ int main(void)
   MX_FATFS_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
+  key_init();
+  led_init();
   RTT_CREATE(led1,led1_thread_entry,RT_NULL,256,5,20);
   RTT_CREATE(led2,led2_thread_entry,RT_NULL,256,5,20);
   RTT_CREATE(led3,led3_thread_entry,RT_NULL,256,5,20);

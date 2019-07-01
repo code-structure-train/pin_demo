@@ -7,6 +7,7 @@ common:
   - Drivers/CMSIS/Device/ST/STM32F4xx
   - Drivers/CMSIS/Device/ST/STM32F4xx/Include
   - Drivers/CMSIS/Include
+  - Drivers/RTT_Driver/Inc
   - Drivers/STM32F4xx_HAL_Driver
   - Drivers/STM32F4xx_HAL_Driver/Inc
   - Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
@@ -36,6 +37,7 @@ common:
     Drivers:
     - Drivers/STM32F4xx_HAL_Driver/Src
     RTThread:
+    - Drivers/RTT_Driver/Src
     - Libraries/rt-thread/board-407vg
     - Libraries/rt-thread/components/drivers/misc/pin.c
     - Libraries/rt-thread/HAL_Drivers
