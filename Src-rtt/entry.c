@@ -118,13 +118,35 @@ void led2_thread_entry(void* parameter)
 
 void led3_thread_entry(void* parameter)
 {
-  while(1) {	
-    if(KEY_VALUE == 0)	{
-      rt_pin_write(LED_B_PIN, PIN_HIGH);
-      rt_thread_mdelay(500);
-      rt_pin_write(LED_B_PIN, PIN_LOW);
-      rt_thread_mdelay(500);
+  static uint8_t count = 0;
+  static uint8_t key_last = 0;
+  while(1) {
+    if (key_last != KEY_VALUE) {
+
+      if(key_last == 1 && KEY_VALUE == 0) {
+
+        if(count >= 4)	{
+          count = 0;
+        }
+
+        if(count == 0) {
+          rt_pin_write(LED_G_PIN, !rt_pin_read(LED_G_PIN));
+        }
+        if(count == 1) {
+          rt_pin_write(LED_O_PIN, !rt_pin_read(LED_O_PIN));
+        }
+        if(count == 2) {
+          rt_pin_write(LED_R_PIN, !rt_pin_read(LED_R_PIN));
+        }
+        if(count == 3) {
+          rt_pin_write(LED_B_PIN, !rt_pin_read(LED_B_PIN));
+        }
+
+        count++;
+      }
+      key_last = KEY_VALUE;
     }
+    rt_thread_delay(1);
   }
 }
 /* USER CODE END 0 */
@@ -162,8 +184,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   key_init();
   led_init();
-  RTT_CREATE(led1,led1_thread_entry,RT_NULL,256,5,20);
-  RTT_CREATE(led2,led2_thread_entry,RT_NULL,256,5,20);
+//  RTT_CREATE(led1,led1_thread_entry,RT_NULL,256,5,20);
+//  RTT_CREATE(led2,led2_thread_entry,RT_NULL,256,5,20);
   RTT_CREATE(led3,led3_thread_entry,RT_NULL,256,5,20);
   /* USER CODE END 2 */
 
