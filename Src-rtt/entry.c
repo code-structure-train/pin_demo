@@ -125,7 +125,7 @@ void led3_thread_entry(void* parameter)
 
       if(key_last == 1 && KEY_VALUE == 0) {
 
-        if(count >= 4)	{
+        if(count >= 3)	{
           count = 0;
         }
 
@@ -133,12 +133,9 @@ void led3_thread_entry(void* parameter)
           rt_pin_write(LED_G_PIN, !rt_pin_read(LED_G_PIN));
         }
         if(count == 1) {
-          rt_pin_write(LED_O_PIN, !rt_pin_read(LED_O_PIN));
-        }
-        if(count == 2) {
           rt_pin_write(LED_R_PIN, !rt_pin_read(LED_R_PIN));
         }
-        if(count == 3) {
+        if(count == 2) {
           rt_pin_write(LED_B_PIN, !rt_pin_read(LED_B_PIN));
         }
 
