@@ -19,7 +19,10 @@ common:
   - Libraries/rt-thread/components/drivers
   - Libraries/rt-thread/components/drivers/include
   - Libraries/rt-thread/components/drivers/include/drivers/pin.h
+  - Libraries/rt-thread/components/drivers/include/drivers/serial.h
   - Libraries/rt-thread/HAL_Drivers
+  - Libraries/rt-thread/HAL_Drivers/config
+  - Libraries/rt-thread/HAL_Drivers/config/f4
   - Libraries/rt-thread/include
   - Libraries/rt-thread/include/libc
   - Middlewares
@@ -40,6 +43,8 @@ common:
     - Drivers/RTT_Driver/Src
     - Libraries/rt-thread/board-407vg
     - Libraries/rt-thread/components/drivers/misc/pin.c
+    - Libraries/rt-thread/components/drivers/serial/serial.c
+    - Libraries/rt-thread/components/drivers/src/completion.c
     - Libraries/rt-thread/HAL_Drivers
     - Libraries/rt-thread/libcpu/arm/cortex-m4/cpuport.c
     - Libraries/rt-thread/src
