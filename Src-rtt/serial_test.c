@@ -35,12 +35,13 @@ static void serial_thread_entry(void *parameter)
             /* 阻塞等待接收信号量，等到信号量后再次读取数据 */
             rt_sem_take(&rx_sem, RT_WAITING_FOREVER);
         }
+        /* 读取到的数据通过串口错位输出 */
+        ch = ch + 1;
         rt_device_write(serial, 0, &ch, 1);
-        rt_thread_delay(1);
     }
 }
 
-int uart_sample(int argc, char *argv[])
+static int uart_sample(int argc, char *argv[])
 {
     rt_err_t ret = RT_EOK;
     char uart_name[RT_NAME_MAX];

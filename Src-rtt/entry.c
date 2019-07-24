@@ -188,7 +188,6 @@ int main(void)
 //  RTT_CREATE(led1,led1_thread_entry,RT_NULL,256,5,20);
 //  RTT_CREATE(led2,led2_thread_entry,RT_NULL,256,5,20);
   RTT_CREATE(led3,led3_thread_entry,RT_NULL,256,5,20);
-  uart_sample(1,NULL);
   /* USER CODE END 2 */
 
   /* Infinite loop */

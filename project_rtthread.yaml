@@ -20,6 +20,7 @@ common:
   - Libraries/rt-thread/components/drivers/include
   - Libraries/rt-thread/components/drivers/include/drivers/pin.h
   - Libraries/rt-thread/components/drivers/include/drivers/serial.h
+  - Libraries/rt-thread/components/finsh
   - Libraries/rt-thread/HAL_Drivers
   - Libraries/rt-thread/HAL_Drivers/config
   - Libraries/rt-thread/HAL_Drivers/config/f4
@@ -46,6 +47,7 @@ common:
     - Libraries/rt-thread/components/drivers/serial/serial.c
     - Libraries/rt-thread/components/drivers/src/completion.c
     - Libraries/rt-thread/components/drivers/src/dataqueue.c
+    - Libraries/rt-thread/components/finsh
     - Libraries/rt-thread/HAL_Drivers
     - Libraries/rt-thread/libcpu/arm/cortex-m4/cpuport.c
     - Libraries/rt-thread/src
