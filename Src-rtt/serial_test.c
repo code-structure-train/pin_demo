@@ -1,50 +1,73 @@
 /*
- * 程序清单：这是一个 串口 设备使用例程
- * 例程导出了 uart_sample 命令到控制终端
- * 命令调用格式：uart_sample uart2
+ * 程序清单：这是一个串口设备 DMA 接收使用例程
+ * 例程导出了 uart_dma_sample 命令到控制终端
+ * 命令调用格式：uart_dma_sample uart3
  * 命令解释：命令第二个参数是要使用的串口设备名称，为空则使用默认的串口设备
- * 程序功能：通过串口输出字符串"hello RT-Thread!"，然后错位输出输入的字符
+ * 程序功能：通过串口输出字符串"hello RT-Thread!"，并通过串口输出接收到的数据，然后打印接收到的数据。
 */
 
 #include <rtthread.h>
 
-#define SAMPLE_UART_NAME       "uart2"
+#define SAMPLE_UART_NAME       "uart3"      /* 串口设备名称 */
 
-/* 用于接收消息的信号量 */
-static struct rt_semaphore rx_sem;
+/* 串口接收消息结构*/
+struct rx_msg
+{
+    rt_device_t dev;
+    rt_size_t size;
+};
+/* 串口设备句柄 */
 static rt_device_t serial;
+/* 消息队列控制块 */
+static struct rt_messagequeue rx_mq;
 
 /* 接收数据回调函数 */
 static rt_err_t uart_input(rt_device_t dev, rt_size_t size)
 {
-    /* 串口接收到数据后产生中断，调用此回调函数，然后发送接收信号量 */
-    rt_sem_release(&rx_sem);
+    struct rx_msg msg;
+    rt_err_t result;
+    msg.dev = dev;
+    msg.size = size;
 
-    return RT_EOK;
+    result = rt_mq_send(&rx_mq, &msg, sizeof(msg));
+    if ( result == -RT_EFULL)
+    {
+        /* 消息队列满 */
+        rt_kprintf("message queue full！\n");
+    }
+    return result;
 }
 
 static void serial_thread_entry(void *parameter)
 {
-    char ch;
+    struct rx_msg msg;
+    rt_err_t result;
+    rt_uint32_t rx_length;
+    static char rx_buffer[RT_SERIAL_RB_BUFSZ + 1];
 
     while (1)
     {
-        /* 从串口读取一个字节的数据，没有读取到则等待接收信号量 */
-        while (rt_device_read(serial, -1, &ch, 1) != 1)
+        rt_memset(&msg, 0, sizeof(msg));
+        /* 从消息队列中读取消息*/
+        result = rt_mq_recv(&rx_mq, &msg, sizeof(msg), RT_WAITING_FOREVER);
+        if (result == RT_EOK)
         {
-            /* 阻塞等待接收信号量，等到信号量后再次读取数据 */
-            rt_sem_take(&rx_sem, RT_WAITING_FOREVER);
+            /* 从串口读取数据*/
+            rx_length = rt_device_read(msg.dev, 0, rx_buffer, msg.size);
+            rx_buffer[rx_length] = '\0';
+            /* 通过串口设备 serial 输出读取到的消息 */
+            rt_device_write(serial, 0, rx_buffer, rx_length);
+            /* 打印数据 */
+            rt_kprintf("%s\n",rx_buffer);
         }
-        /* 读取到的数据通过串口错位输出 */
-        ch = ch + 1;
-        rt_device_write(serial, 0, &ch, 1);
     }
 }
 
-static int uart_sample(int argc, char *argv[])
+static int uart_dma_sample(int argc, char *argv[])
 {
     rt_err_t ret = RT_EOK;
     char uart_name[RT_NAME_MAX];
+    static char msg_pool[256];
     char str[] = "hello RT-Thread!\r\n";
 
     if (argc == 2)
@@ -56,7 +79,7 @@ static int uart_sample(int argc, char *argv[])
         rt_strncpy(uart_name, SAMPLE_UART_NAME, RT_NAME_MAX);
     }
 
-    /* 查找系统中的串口设备 */
+    /* 查找串口设备 */
     serial = rt_device_find(uart_name);
     if (!serial)
     {
@@ -64,10 +87,15 @@ static int uart_sample(int argc, char *argv[])
         return RT_ERROR;
     }
 
-    /* 初始化信号量 */
-    rt_sem_init(&rx_sem, "rx_sem", 0, RT_IPC_FLAG_FIFO);
-    /* 以中断接收及轮询发送模式打开串口设备 */
-    rt_device_open(serial, RT_DEVICE_FLAG_INT_RX);
+    /* 初始化消息队列 */
+    rt_mq_init(&rx_mq, "rx_mq",
+               msg_pool,                 /* 存放消息的缓冲区 */
+               sizeof(struct rx_msg),    /* 一条消息的最大长度 */
+               sizeof(msg_pool),         /* 存放消息的缓冲区大小 */
+               RT_IPC_FLAG_FIFO);        /* 如果有多个线程等待，按照先来先得到的方法分配消息 */
+
+    /* 以 DMA 接收及轮询发送方式打开串口设备 */
+    rt_device_open(serial, RT_DEVICE_FLAG_DMA_RX);
     /* 设置接收回调函数 */
     rt_device_set_rx_indicate(serial, uart_input);
     /* 发送字符串 */
@@ -88,4 +116,4 @@ static int uart_sample(int argc, char *argv[])
     return ret;
 }
 /* 导出到 msh 命令列表中 */
-MSH_CMD_EXPORT(uart_sample, uart device sample);
+MSH_CMD_EXPORT(uart_dma_sample, uart device dma sample);
