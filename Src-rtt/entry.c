@@ -95,6 +95,11 @@ int uart_sample(int argc, char *argv[]);
 rt_thread_t led1_thread;
 rt_thread_t led2_thread;
 rt_thread_t led3_thread;
+rt_thread_t com_send_thread = RT_NULL;
+
+rt_mq_t usart_mq = RT_NULL;
+
+void serial_send_thread_entry(void *parameter);
 
 void led1_thread_entry(void* parameter)
 {
@@ -185,9 +190,14 @@ int main(void)
   /* USER CODE BEGIN 2 */
   key_init();
   led_init();
+	
+	RTT_MQ_CREATE(usart,1,100,RT_IPC_FLAG_FIFO)
+	
 //  RTT_CREATE(led1,led1_thread_entry,RT_NULL,256,5,20);
 //  RTT_CREATE(led2,led2_thread_entry,RT_NULL,256,5,20);
   RTT_CREATE(led3,led3_thread_entry,RT_NULL,256,5,20);
+	RTT_CREATE(com_send,serial_send_thread_entry,RT_NULL,256,2,20)
+	
   uart_sample(1,NULL);
   /* USER CODE END 2 */
 
